@@ -40,13 +40,13 @@ export class Main extends React.Component<IMainProps, { lastRoll?: number }>
         const canvasEl = this.canvas4.current as HTMLCanvasElement;
         const ctx = canvasEl.getContext("2d", { alpha: true });
         ctx.clearRect(0, 0, 550, 550);
-        const red = Math.floor(new Date().getTime() / 10 % 255);
-        const green = Math.floor(new Date().getTime() / 100 % 255);
-        const blue = Math.floor(new Date().getTime() / 1000 % 255);
-        ctx.fillStyle = `rgba(${red}, ${green}, ${blue})`;
-        ctx.fillRect(10 + 2 + 5 * 48, 10 + 2 + 5 * 48, 44, 44);
+        // const red = Math.floor(new Date().getTime() / 10 % 255);
+        // const green = Math.floor(new Date().getTime() / 100 % 255);
+        // const blue = Math.floor(new Date().getTime() / 1000 % 255);
+        // ctx.fillStyle = `rgba(${red}, ${green}, ${blue})`;
+        // ctx.fillRect(10 + 2 + 5 * 48, 10 + 2 + 5 * 48, 44, 44);
 
-        if(this.props.app.game.turn.state === ETurnState.waitingForPieceSelection){
+        if (this.props.app.game.turn.state === ETurnState.waitingForPieceSelection) {
             // highlight player selectable pieces;
             const cellSize = 48;
             const cellMargin = 4;
@@ -167,27 +167,34 @@ export class Main extends React.Component<IMainProps, { lastRoll?: number }>
     public render(): JSX.Element {
         const turnInfo = this.props.app.game.turn;
         return (
-            <>
-                <div>Hello from Main.tsx</div>
-                <div style={{ display: "flex" }}>
-                    <div>
-                        <button onClick={this.roll}>Roll!</button>
-                        <div>lastRoll: {this.state.lastRoll}</div>
-                    </div>
-                    <div>
-                        <div>player info</div>
-                        <div>current player: {turnInfo.currentPlayer.name}</div>
-                        <div>throw: {turnInfo.throwNumber} / {turnInfo.maxThrows}</div>
-                        <p>{turnInfo.message}</p>
-                    </div>
-                </div>
-                <div style={{ position: "relative" }}>
+            <div style={{ display: 'flex' }}>
+                <div style={{ position: "relative", width: 550, height: 550 }}>
                     <canvas id="hit-detection-layer" width="550" height="550" style={{ position: "absolute" }} ref={this.canvas3} onClick={this.onHit}></canvas>
                     <canvas id="background-layer" width="550" height="550" style={{ position: "absolute", pointerEvents: "none" }} ref={this.canvas}></canvas>
                     <canvas id="pieces-layer" width="550" height="550" style={{ position: "absolute", pointerEvents: "none" }} ref={this.canvas2}></canvas>
                     <canvas id="highligh-layer" width="550" height="550" style={{ position: "absolute", pointerEvents: "none" }} ref={this.canvas4}></canvas>
                 </div>
-            </>
+                <div style={{ display: "flex", flexDirection: "column", marginLeft: "1rem", width: 250 }}>
+                    <div style={{margin: "1rem 0", backgroundColor: "#EEEEEE", padding: "0.2rem" }}>
+                        <div>player info</div>
+                        <div>current player: {turnInfo.currentPlayer.name}</div>
+                        <div>throw: {turnInfo.throwNumber} / {turnInfo.maxThrows}</div>
+                        <p>{turnInfo.message}</p>
+                    </div>
+                    <div>
+                        <button onClick={this.roll} style={{
+                            height: "3rem", 
+                            padding: "0.2rem 1.2rem", 
+                            borderColor: "#BBBBBB", 
+                            borderRadius: "0.4rem",
+                            textTransform: "uppercase",
+                            fontWeight: 900
+                            }}>Roll dice!</button>
+                            {/* TODO: top idea, when its your turn, you roll dice by swiping, either mouse click and hold moving, or mobile swiping to roll dice */}
+                        <div>lastRoll: {turnInfo.roll}</div>
+                    </div>
+                </div>
+            </div>
         );
     }
 }

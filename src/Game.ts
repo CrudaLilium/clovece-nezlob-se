@@ -4,7 +4,8 @@ import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IObjectIdentity, IPlayer
 
 export enum ETurnState {
     waitingForRoll,
-    waitingForPieceSelection
+    waitingForPieceSelection,
+    waitingForPieceSelectionAndPass
 }
 
 export interface ITurnInfo {
@@ -14,6 +15,7 @@ export interface ITurnInfo {
     maxThrows: number;
     message: string;
     special: boolean;
+    roll?: number;
 }
 
 export class Game {
@@ -51,8 +53,8 @@ export class Game {
             return; //illegal roll
 
         if (this.turn.currentPlayer.gameStatus === EPlayerGameState.startingRolls) {
-            const roll = rollDice6();
-            if (roll === 6) {
+            this.turn.roll = rollDice6();
+            if (this.turn.roll === 6) {
                 this.turn.message = "select piece to get into board and roll again!";
                 this.turn.special = true;
                 this.turn.state = ETurnState.waitingForPieceSelection;
@@ -65,26 +67,49 @@ export class Game {
             if (this.turn.throwNumber === this.turn.maxThrows) {
                 this.passTurnToNextPlayer();
             }
-            return roll;
+            return this.turn.roll;
         }
 
-        const currentPlayerPieces = this.playerPieces.filter(item => item.player === this.turn.currentPlayer);
-        const firstPlayerPiece = currentPlayerPieces[0];
-        let indexOfPosition = this.board.indexOf(firstPlayerPiece.position);
-        const roll = rollDice6();
-        let newPosition = indexOfPosition + roll;
-        firstPlayerPiece.position = this.board[newPosition];
-        this.passTurnToNextPlayer();
-        return roll;
+        if (this.turn.currentPlayer.gameStatus === EPlayerGameState.inPlay) {
+            this.turn.roll = rollDice6();
+            this.turn.message = "select piece on board to move!";
+            this.turn.state = ETurnState.waitingForPieceSelectionAndPass;
+            if(this.turn.roll === 6)
+            {
+                this.turn.message = "select piece on board to move!";
+                this.turn.special = true;
+                this.turn.state = ETurnState.waitingForPieceSelection;
+            }
+            return this.turn.roll;
+        }
     }
 
     public pieceSelect(objectId: number) {
         console.log("pieceSelect", objectId);
-        if (this.turn.state !== ETurnState.waitingForPieceSelection)
+        if (!(this.turn.state === ETurnState.waitingForPieceSelection || this.turn.state === ETurnState.waitingForPieceSelectionAndPass))
             return;
         const playerPiece = this.playerPieces.find(item => item.identity === objectId);
+        if(!playerPiece){
+            console.warn("attempt to select empty cell, canceling");
+            return;
+        }
+        if(playerPiece.player !== this.turn.currentPlayer){
+            console.warn("attemp to select piece not belonging to current player");
+            return;
+        }
         if (this.turn.special && (playerPiece.position as IPlayerCell).flag === EPlayerCellFlag.homeCell) {
-            playerPiece.position = this.playerCells.find(item => item.flag === EPlayerCellFlag.boardStartCell);
+            playerPiece.position = this.playerCells.find(item => item.player === this.turn.currentPlayer && item.flag === EPlayerCellFlag.boardStartCell);
+        }
+        else{
+            const currentCell = this.board.find((item : IBoardCell) => {return item.index === playerPiece.position.index});
+            const indexOfCurrentCell = this.board.indexOf(currentCell);
+            let newIndex = ((indexOfCurrentCell + this.turn.roll) % this.board.length);
+            const newCell = this.board[newIndex];
+            playerPiece.position = newCell;
+        }
+        if(this.turn.state === ETurnState.waitingForPieceSelectionAndPass)
+        {
+            this.passTurnToNextPlayer();
         }
         this.turn.state = ETurnState.waitingForRoll;
     }
