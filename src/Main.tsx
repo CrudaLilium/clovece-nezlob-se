@@ -153,9 +153,13 @@ export class Main extends React.Component<IMainProps, { lastRoll?: number }>
         const y = event.clientY - rect.top;
         const ctx = canvasEl.getContext("2d");
         const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const currTurn = this.props.app.game.turn.currentPlayer;
         this.props.app.game.pieceSelect(pixel[0]);
         this.drawPlayers();
         this.drawHitDetection();
+        //TODO: refactor to event driven, or make "turn" immutable and assign
+        if(this.props.app.game.turn.currentPlayer !== currTurn)
+            this.setState({ lastRoll: 0 });
     }
 
     private roll() {

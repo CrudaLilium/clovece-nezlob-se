@@ -120,5 +120,6 @@ export class Game {
             indexOfNextPlayer = 0;
         this.turn.currentPlayer = this.players[indexOfNextPlayer];
         this.turn.throwNumber = 0;
+        this.turn.maxThrows = this.turn.currentPlayer.gameStatus === EPlayerGameState.startingRolls ? 3 : 1;
     }
 }
