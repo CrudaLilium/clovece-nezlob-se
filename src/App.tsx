@@ -1,14 +1,18 @@
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Main } from './Main';
+import { GameBoard } from './GameBoard';
 import { Game } from './Game';
+import { Main } from './Main';
 
 export class App {
   public game: Game;
 
   constructor() {
-    this.game = new Game();
     this.render();
+  }
+
+  public startGame(){
+    this.game = new Game();
   }
 
   private render(): void {
