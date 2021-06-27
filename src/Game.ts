@@ -1,5 +1,6 @@
 import { rollDice6 } from "./DiceRolls";
-import { generateBoardInfo, generatePlayerBoardCells, generatePlayerPiecesAtStart, generatePlayers } from "./GameInitializations";
+import EPlayerColor from "./EPlayerColors";
+import { generateBoardInfo, generatePlayerBoardCells, generatePlayerPiecesAtStart, defaultFullGeneratePlayers, generatePlayersBasedOnLobby } from "./GameInitializations";
 import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IObjectIdentity, IPlayer, IPlayerCell, IPlayerPiece } from "./GameStructs";
 
 export enum ETurnState {
@@ -25,8 +26,8 @@ export class Game {
     public playerPieces: Array<IPlayerPiece & IObjectIdentity>;
     public turn: ITurnInfo;
 
-    constructor() {
-        this.players = generatePlayers();
+    constructor(players?: Array<{ playerName: string, color: EPlayerColor }>) {
+        this.players = players ? generatePlayersBasedOnLobby(players) : defaultFullGeneratePlayers();
         this.board = generateBoardInfo();
         this.playerCells = generatePlayerBoardCells(this.players);
         this.playerPieces = generatePlayerPiecesAtStart(this.players, this.board, this.playerCells);
@@ -74,8 +75,7 @@ export class Game {
             this.turn.roll = rollDice6();
             this.turn.message = "select piece on board to move!";
             this.turn.state = ETurnState.waitingForPieceSelectionAndPass;
-            if(this.turn.roll === 6)
-            {
+            if (this.turn.roll === 6) {
                 this.turn.message = "select piece on board to move!";
                 this.turn.special = true;
                 this.turn.state = ETurnState.waitingForPieceSelection;
@@ -89,26 +89,25 @@ export class Game {
         if (!(this.turn.state === ETurnState.waitingForPieceSelection || this.turn.state === ETurnState.waitingForPieceSelectionAndPass))
             return;
         const playerPiece = this.playerPieces.find(item => item.identity === objectId);
-        if(!playerPiece){
+        if (!playerPiece) {
             console.warn("attempt to select empty cell, canceling");
             return;
         }
-        if(playerPiece.player !== this.turn.currentPlayer){
+        if (playerPiece.player !== this.turn.currentPlayer) {
             console.warn("attemp to select piece not belonging to current player");
             return;
         }
         if (this.turn.special && (playerPiece.position as IPlayerCell).flag === EPlayerCellFlag.homeCell) {
             playerPiece.position = this.playerCells.find(item => item.player === this.turn.currentPlayer && item.flag === EPlayerCellFlag.boardStartCell);
         }
-        else{
-            const currentCell = this.board.find((item : IBoardCell) => {return item.index === playerPiece.position.index});
+        else {
+            const currentCell = this.board.find((item: IBoardCell) => { return item.index === playerPiece.position.index });
             const indexOfCurrentCell = this.board.indexOf(currentCell);
             let newIndex = ((indexOfCurrentCell + this.turn.roll) % this.board.length);
             const newCell = this.board[newIndex];
             playerPiece.position = newCell;
         }
-        if(this.turn.state === ETurnState.waitingForPieceSelectionAndPass)
-        {
+        if (this.turn.state === ETurnState.waitingForPieceSelectionAndPass) {
             this.passTurnToNextPlayer();
         }
         this.turn.state = ETurnState.waitingForRoll;

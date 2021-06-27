@@ -7,8 +7,6 @@ export interface IPlayerLobbyInfo {
     initialColor?: EPlayerColor;
 }
 
-
-
 export function PlayerLobbyInfo(props: IPlayerLobbyInfo) {
     const [playerName, setPlayerName] = useState(props.initialPlayerName);
     const [color, setColor] = useState(props.initialColor ?? EPlayerColor.Orange);

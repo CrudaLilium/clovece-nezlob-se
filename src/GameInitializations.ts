@@ -1,6 +1,14 @@
+import EPlayerColor from "./EPlayerColors";
 import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IPlayer, IPlayerCell, IPlayerPiece } from "./GameStructs";
 
-export function generatePlayers(): IPlayer[] {
+export function generatePlayersBasedOnLobby(players: Array<{ playerName: string, color: EPlayerColor }>) {
+    const playersResult: IPlayer[] = [];
+    for (const player of players)
+        playersResult.push({ color: player.color, name: player.playerName, gameStatus: EPlayerGameState.startingRolls });
+    return playersResult;
+}
+
+export function defaultFullGeneratePlayers(): IPlayer[] {
     const players: IPlayer[] = [];
     players.push({ color: "red", name: "Player 1", gameStatus: EPlayerGameState.startingRolls });
     players.push({ color: "green", name: "Player 2", gameStatus: EPlayerGameState.startingRolls });
@@ -56,42 +64,67 @@ export function generateBoardInfo(): IBoardCell[] {
 
 export function generatePlayerBoardCells(players: IPlayer[]): Array<IBoardCell & IPlayerCell> {
     const playerCells: Array<IBoardCell & IPlayerCell> = [];
-    playerCells.push({ index: 0, x: 0, y: 4, player: players[0], flag: EPlayerCellFlag.boardStartCell });
-    playerCells.push({ index: 100, x: 1, y: 5, player: players[0], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 101, x: 2, y: 5, player: players[0], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 102, x: 3, y: 5, player: players[0], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 102, x: 4, y: 5, player: players[0], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 200, x: 0, y: 0, player: players[0], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 201, x: 0, y: 1, player: players[0], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 202, x: 1, y: 0, player: players[0], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 203, x: 1, y: 1, player: players[0], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 10, x: 6, y: 0, player: players[1], flag: EPlayerCellFlag.boardStartCell });
-    playerCells.push({ index: 110, x: 5, y: 1, player: players[1], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 111, x: 5, y: 2, player: players[1], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 112, x: 5, y: 3, player: players[1], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 112, x: 5, y: 4, player: players[1], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 210, x: 9, y: 0, player: players[1], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 211, x: 10, y: 0, player: players[1], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 212, x: 9, y: 1, player: players[1], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 213, x: 10, y: 1, player: players[1], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 20, x: 10, y: 6, player: players[2], flag: EPlayerCellFlag.boardStartCell });
-    playerCells.push({ index: 120, x: 9, y: 5, player: players[2], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 121, x: 8, y: 5, player: players[2], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 122, x: 7, y: 5, player: players[2], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 122, x: 6, y: 5, player: players[2], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 220, x: 9, y: 9, player: players[2], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 221, x: 10, y: 9, player: players[2], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 222, x: 9, y: 10, player: players[2], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 223, x: 10, y: 10, player: players[2], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 30, x: 4, y: 10, player: players[3], flag: EPlayerCellFlag.boardStartCell });
-    playerCells.push({ index: 130, x: 5, y: 9, player: players[3], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 131, x: 5, y: 8, player: players[3], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 132, x: 5, y: 7, player: players[3], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 132, x: 5, y: 6, player: players[3], flag: EPlayerCellFlag.finishCell });
-    playerCells.push({ index: 230, x: 0, y: 9, player: players[3], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 231, x: 1, y: 9, player: players[3], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 232, x: 0, y: 10, player: players[3], flag: EPlayerCellFlag.homeCell });
-    playerCells.push({ index: 233, x: 1, y: 10, player: players[3], flag: EPlayerCellFlag.homeCell });
+
+    let player = players[0];
+    playerCells.push({ index: 0, x: 0, y: 4, player, flag: EPlayerCellFlag.boardStartCell });
+    playerCells.push({ index: 100, x: 1, y: 5, player, flag: EPlayerCellFlag.finishCell });
+    playerCells.push({ index: 101, x: 2, y: 5, player, flag: EPlayerCellFlag.finishCell });
+    playerCells.push({ index: 102, x: 3, y: 5, player, flag: EPlayerCellFlag.finishCell });
+    playerCells.push({ index: 102, x: 4, y: 5, player, flag: EPlayerCellFlag.finishCell });
+    playerCells.push({ index: 200, x: 0, y: 0, player, flag: EPlayerCellFlag.homeCell });
+    playerCells.push({ index: 201, x: 0, y: 1, player, flag: EPlayerCellFlag.homeCell });
+    playerCells.push({ index: 202, x: 1, y: 0, player, flag: EPlayerCellFlag.homeCell });
+    playerCells.push({ index: 203, x: 1, y: 1, player, flag: EPlayerCellFlag.homeCell });
+
+    if (players.length === 2) {
+        let player = players[1];
+        playerCells.push({ index: 20, x: 10, y: 6, player, flag: EPlayerCellFlag.boardStartCell });
+        playerCells.push({ index: 120, x: 9, y: 5, player, flag: EPlayerCellFlag.finishCell });
+        playerCells.push({ index: 121, x: 8, y: 5, player, flag: EPlayerCellFlag.finishCell });
+        playerCells.push({ index: 122, x: 7, y: 5, player, flag: EPlayerCellFlag.finishCell });
+        playerCells.push({ index: 122, x: 6, y: 5, player, flag: EPlayerCellFlag.finishCell });
+        playerCells.push({ index: 220, x: 9, y: 9, player, flag: EPlayerCellFlag.homeCell });
+        playerCells.push({ index: 221, x: 10, y: 9, player, flag: EPlayerCellFlag.homeCell });
+        playerCells.push({ index: 222, x: 9, y: 10, player, flag: EPlayerCellFlag.homeCell });
+        playerCells.push({ index: 223, x: 10, y: 10, player, flag: EPlayerCellFlag.homeCell });
+    } else {
+        if (players.length > 1) {
+            player = players[1];
+            playerCells.push({ index: 10, x: 6, y: 0, player, flag: EPlayerCellFlag.boardStartCell });
+            playerCells.push({ index: 110, x: 5, y: 1, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 111, x: 5, y: 2, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 112, x: 5, y: 3, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 112, x: 5, y: 4, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 210, x: 9, y: 0, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 211, x: 10, y: 0, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 212, x: 9, y: 1, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 213, x: 10, y: 1, player, flag: EPlayerCellFlag.homeCell });
+        }
+        if (players.length > 2) {
+            player = players[2];
+            playerCells.push({ index: 20, x: 10, y: 6, player, flag: EPlayerCellFlag.boardStartCell });
+            playerCells.push({ index: 120, x: 9, y: 5, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 121, x: 8, y: 5, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 122, x: 7, y: 5, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 122, x: 6, y: 5, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 220, x: 9, y: 9, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 221, x: 10, y: 9, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 222, x: 9, y: 10, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 223, x: 10, y: 10, player, flag: EPlayerCellFlag.homeCell });
+        }
+        if (players.length > 3) {
+            player = players[3];
+            playerCells.push({ index: 30, x: 4, y: 10, player, flag: EPlayerCellFlag.boardStartCell });
+            playerCells.push({ index: 130, x: 5, y: 9, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 131, x: 5, y: 8, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 132, x: 5, y: 7, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 132, x: 5, y: 6, player, flag: EPlayerCellFlag.finishCell });
+            playerCells.push({ index: 230, x: 0, y: 9, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 231, x: 1, y: 9, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 232, x: 0, y: 10, player, flag: EPlayerCellFlag.homeCell });
+            playerCells.push({ index: 233, x: 1, y: 10, player, flag: EPlayerCellFlag.homeCell });
+        }
+    }
     return playerCells;
 }
 
@@ -99,8 +132,9 @@ export function generatePlayerPiecesAtStart(players: IPlayer[], board: IBoardCel
     const playerPieces = [];
     for (let p = 0; p < players.length; p++) {
         for (let i = 0; i < 4; i++) {
-            const position = [...board, ...playerCells].find(x => x.index == 200 + (p * 10) + i)
-            playerPieces.push({ code: i.toString(), player: players[p], position: position });
+            const player = players[p];
+            const position = playerCells.find(x => x.player === player && x.flag === EPlayerCellFlag.homeCell && x.index % 10 === i)
+            playerPieces.push({ code: i.toString(), player, position: position });
         }
     }
     return playerPieces;

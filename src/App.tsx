@@ -3,6 +3,7 @@ import * as React from 'react';
 import { GameBoard } from './GameBoard';
 import { Game } from './Game';
 import { Main } from './Main';
+import EPlayerColor from './EPlayerColors';
 
 export class App {
   public game: Game;
@@ -11,8 +12,8 @@ export class App {
     this.render();
   }
 
-  public startGame(){
-    this.game = new Game();
+  public startGame(players: Array<{ playerName: string, color: EPlayerColor }>) {
+    this.game = new Game(players);
   }
 
   private render(): void {

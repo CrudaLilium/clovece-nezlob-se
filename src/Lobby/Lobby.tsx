@@ -15,7 +15,7 @@ export function Lobby(props: ILobbyProps) {
         { playerName: "Player 2", color: EPlayerColor.Green },
     ]);
     function handleClick() {
-        props.app.startGame();
+        props.app.startGame(players);
         if (props.app.game != null) {
             props.setGame(props.app.game);
         }
