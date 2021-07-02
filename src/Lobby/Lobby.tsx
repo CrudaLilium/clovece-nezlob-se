@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { App } from "../App";
 import EPlayerColor, { EPlayerColorReverseMap } from "../EPlayerColors";
 import { Game } from "../Game";
-import { PlayerLobbyInfo } from "./PlayerLobbyInfo";
+import { IPlayer, PlayerLobbyInfo } from "./PlayerLobbyInfo";
 
 export interface ILobbyProps {
     app: App;
@@ -29,21 +29,37 @@ export function Lobby(props: ILobbyProps) {
         setPlayers([...players, newPlayer])
     }
 
+    function removePlayer(index: number) {
+        const newPlayersArray = players.filter((_, _index) => _index != index);
+        setPlayers(newPlayersArray);
+    }
+
+    function updatePlayer(index: number, playerData: IPlayer) {
+        setPlayers([
+            ...players.slice(0, index),
+            Object.assign({}, players[index], playerData),
+            ...players.slice(index + 1)
+        ]);
+    }
+
     return (
         <div>
             <h1>Lobby</h1>
             {
-                players.map(player => {
+                players.map((player, index) => {
                     return (
-                        <div>
-                            <PlayerLobbyInfo initialPlayerName={player.playerName} initialColor={player.color}></PlayerLobbyInfo>
+                        <div key={"pl-" + index}>
+                            <button className={"big-button"} style={{ margin: "0 .2rem" }} onClick={() => removePlayer(index)}>-</button>
+                            <PlayerLobbyInfo player={player} updatePlayer={updatePlayer.bind(this, index)}></PlayerLobbyInfo>
                         </div>
                     );
                 })
             }
+            <br />
             <div>
-                <button onClick={addPlayer} className={"big-button"}>Add Player</button>
+                <button onClick={addPlayer} className={"big-button"}>+ Add Player</button>
             </div>
+            <br />
             <div>
                 <button onClick={handleClick} className={"big-button"}>StartGame</button>
             </div>
