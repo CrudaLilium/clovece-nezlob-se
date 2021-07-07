@@ -12,7 +12,7 @@ export interface ILobbyProps {
 export function Lobby(props: ILobbyProps) {
     const [players, setPlayers] = useState([
         { playerName: "Player 1", color: EPlayerColor.Red },
-        { playerName: "Player 2", color: EPlayerColor.Green },
+        // { playerName: "Player 2", color: EPlayerColor.Green },
     ]);
     function handleClick() {
         props.app.startGame(players);

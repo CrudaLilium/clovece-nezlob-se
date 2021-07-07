@@ -4,16 +4,16 @@ import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IPlayer, IPlayerCell, IP
 export function generatePlayersBasedOnLobby(players: Array<{ playerName: string, color: EPlayerColor }>) {
     const playersResult: IPlayer[] = [];
     for (const player of players)
-        playersResult.push({ color: player.color, name: player.playerName, gameStatus: EPlayerGameState.startingRolls });
+        playersResult.push({ color: player.color, name: player.playerName, gameStatus: EPlayerGameState.startingRolls, raceTrack: [] });
     return playersResult;
 }
 
 export function defaultFullGeneratePlayers(): IPlayer[] {
     const players: IPlayer[] = [];
-    players.push({ color: "red", name: "Player 1", gameStatus: EPlayerGameState.startingRolls });
-    players.push({ color: "green", name: "Player 2", gameStatus: EPlayerGameState.startingRolls });
-    players.push({ color: "#00aaff", name: "Player 3", gameStatus: EPlayerGameState.startingRolls });
-    players.push({ color: "yellow", name: "Player 4", gameStatus: EPlayerGameState.startingRolls });
+    players.push({ color: "red", name: "Player 1", gameStatus: EPlayerGameState.startingRolls, raceTrack: [] });
+    players.push({ color: "green", name: "Player 2", gameStatus: EPlayerGameState.startingRolls, raceTrack: [] });
+    players.push({ color: "#00aaff", name: "Player 3", gameStatus: EPlayerGameState.startingRolls, raceTrack: [] });
+    players.push({ color: "yellow", name: "Player 4", gameStatus: EPlayerGameState.startingRolls, raceTrack: [] });
     return players;
 }
 
@@ -138,4 +138,22 @@ export function generatePlayerPiecesAtStart(players: IPlayer[], board: IBoardCel
         }
     }
     return playerPieces;
+}
+
+export function generatePlayerRaceTracks(players: IPlayer[], board: IBoardCell[], playerCells: (IBoardCell & IPlayerCell)[]): Array<Array<IBoardCell>> {
+    const playerTracks: Array<Array<IBoardCell>> = [];
+    for (let p = 0; p < players.length; p++) {
+        const player = players[p];
+        const startCell = playerCells.find(cell => cell.player === player && cell.flag === EPlayerCellFlag.boardStartCell);
+        const boardSplit = board.indexOf(board.find(cell => cell.index === startCell.index));
+        const playerFinishCells = playerCells.filter(cell => cell.player === player && cell.flag === EPlayerCellFlag.finishCell);
+        const playerTrack: Array<IBoardCell> = [
+            ...board.slice(boardSplit, board.length),
+            ...board.slice(0, boardSplit),
+            ...playerFinishCells
+        ];
+        playerTracks.push(playerTrack);
+        player.raceTrack = playerTrack;
+    }
+    return playerTracks;
 }

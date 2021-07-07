@@ -12,6 +12,7 @@ export interface IPlayer {
     name: string;
     color: string;
     gameStatus: EPlayerGameState;
+    raceTrack: Array<IBoardCell>;
 }
 
 export enum EPlayerCellFlag{

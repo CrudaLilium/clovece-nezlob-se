@@ -1,6 +1,6 @@
 import { rollDice6 } from "./DiceRolls";
 import EPlayerColor from "./EPlayerColors";
-import { generateBoardInfo, generatePlayerBoardCells, generatePlayerPiecesAtStart, defaultFullGeneratePlayers, generatePlayersBasedOnLobby } from "./GameInitializations";
+import { generateBoardInfo, generatePlayerBoardCells, generatePlayerPiecesAtStart, defaultFullGeneratePlayers, generatePlayersBasedOnLobby, generatePlayerRaceTracks } from "./GameInitializations";
 import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IObjectIdentity, IPlayer, IPlayerCell, IPlayerPiece } from "./GameStructs";
 
 export enum ETurnState {
@@ -24,6 +24,7 @@ export class Game {
     public board: Array<IBoardCell & IObjectIdentity>;
     public playerCells: Array<IBoardCell & IPlayerCell & IObjectIdentity>;
     public playerPieces: Array<IPlayerPiece & IObjectIdentity>;
+    public playerTracks: Array<Array<IBoardCell>>;
     public turn: ITurnInfo;
 
     constructor(players?: Array<{ playerName: string, color: EPlayerColor }>) {
@@ -31,6 +32,7 @@ export class Game {
         this.board = generateBoardInfo();
         this.playerCells = generatePlayerBoardCells(this.players);
         this.playerPieces = generatePlayerPiecesAtStart(this.players, this.board, this.playerCells);
+        this.playerTracks = generatePlayerRaceTracks(this.players, this.board, this.playerCells);
 
         //assign id
         let id = 1;
@@ -98,14 +100,17 @@ export class Game {
             return;
         }
         if (this.turn.special && (playerPiece.position as IPlayerCell).flag === EPlayerCellFlag.homeCell) {
-            playerPiece.position = this.playerCells.find(item => item.player === this.turn.currentPlayer && item.flag === EPlayerCellFlag.boardStartCell);
+            playerPiece.position = this.turn.currentPlayer.raceTrack[0];
+            //playerPiece.position = this.playerCells.find(item => item.player === this.turn.currentPlayer && item.flag === EPlayerCellFlag.boardStartCell);
         }
         else {
-            const currentCell = this.board.find((item: IBoardCell) => { return item.index === playerPiece.position.index });
-            const indexOfCurrentCell = this.board.indexOf(currentCell);
-            let newIndex = ((indexOfCurrentCell + this.turn.roll) % this.board.length);
-            const newCell = this.board[newIndex];
-            playerPiece.position = newCell;
+            const currentCell = this.turn.currentPlayer.raceTrack.find((item: IBoardCell) => { return item.index === playerPiece.position.index });
+            const indexOfCurrentCell = this.turn.currentPlayer.raceTrack.indexOf(currentCell);
+            const newIndex = indexOfCurrentCell + this.turn.roll;
+            const newPosition = this.turn.currentPlayer.raceTrack[newIndex];
+            if(newPosition){
+                playerPiece.position = newPosition;
+            }
         }
         if (this.turn.state === ETurnState.waitingForPieceSelectionAndPass) {
             this.passTurnToNextPlayer();
