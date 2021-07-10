@@ -62,6 +62,7 @@ export class Game {
                 this.turn.special = true;
                 this.turn.state = ETurnState.waitingForPieceSelection;
                 this.turn.currentPlayer.gameStatus = EPlayerGameState.inPlay;
+                this.playerPieces.filter(piece => piece.player === this.turn.currentPlayer).forEach(piece => piece.selectable = true);
             }
             else {
                 this.turn.throwNumber++;
@@ -75,15 +76,49 @@ export class Game {
 
         if (this.turn.currentPlayer.gameStatus === EPlayerGameState.inPlay) {
             this.turn.roll = rollDice6();
+            const possibleMovablePieces = this.checkMoveablePiecies();
+            if (possibleMovablePieces === 0) {
+                this.passTurnToNextPlayer();
+                return;
+            }
             this.turn.message = "select piece on board to move!";
             this.turn.state = ETurnState.waitingForPieceSelectionAndPass;
             if (this.turn.roll === 6) {
-                this.turn.message = "select piece on board to move!";
                 this.turn.special = true;
                 this.turn.state = ETurnState.waitingForPieceSelection;
             }
             return this.turn.roll;
         }
+    }
+
+    private checkMoveablePiecies() {
+        let selectablePiecies = 0;
+        const playerStartingCells = this.playerCells.filter(cell => cell.player === this.turn.currentPlayer && cell.flag === EPlayerCellFlag.homeCell).map(cell => cell.index);
+        if (this.turn.roll === 6) {
+            const piecesAtStart = this.playerPieces.filter(piece => piece.player === this.turn.currentPlayer && (playerStartingCells.indexOf(piece.position.index) > -1));
+            for (let piece of piecesAtStart) {
+                piece.selectable = true;
+                selectablePiecies++;
+            }
+        }
+        const tracks = this.playerTracks[this.players.indexOf(this.turn.currentPlayer)];
+        const piecesInPlay = this.playerPieces.filter(piece => piece.player === this.turn.currentPlayer && tracks.some(cell => cell.index === piece.position.index));
+        for (let piece of piecesInPlay) {
+            const pieceIndexOnTrack = tracks.indexOf(piece.position);
+            const possibleNewPosition = pieceIndexOnTrack + this.turn.roll;
+            const position = tracks[possibleNewPosition];
+            if (!position) //out of track
+            {
+                continue;
+            }
+            const isOccupied = piecesInPlay.some(piece => piece.position === position);
+            if (!isOccupied) //can move
+            {
+                piece.selectable = true;
+                selectablePiecies++;
+            }
+        }
+        return selectablePiecies;
     }
 
     public pieceSelect(objectId: number) {
@@ -108,7 +143,7 @@ export class Game {
             const indexOfCurrentCell = this.turn.currentPlayer.raceTrack.indexOf(currentCell);
             const newIndex = indexOfCurrentCell + this.turn.roll;
             const newPosition = this.turn.currentPlayer.raceTrack[newIndex];
-            if(newPosition){
+            if (newPosition) {
                 playerPiece.position = newPosition;
             }
         }
@@ -116,6 +151,8 @@ export class Game {
             this.passTurnToNextPlayer();
         }
         this.turn.state = ETurnState.waitingForRoll;
+        //reset selectablepieces
+        this.playerPieces.filter(piece => piece.player === this.turn.currentPlayer).forEach(piece => piece.selectable = false);
     }
 
     private passTurnToNextPlayer() {

@@ -45,7 +45,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         // ctx.fillStyle = `rgba(${red}, ${green}, ${blue})`;
         // ctx.fillRect(10 + 2 + 5 * 48, 10 + 2 + 5 * 48, 44, 44);
 
-        if (this.props.game.turn.state === ETurnState.waitingForPieceSelection) {
+        if (this.props.game.turn.state === ETurnState.waitingForPieceSelection || this.props.game.turn.state === ETurnState.waitingForPieceSelectionAndPass) {
             // highlight player selectable pieces;
             const cellSize = 48;
             const cellMargin = 4;
@@ -55,7 +55,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
             ctx.lineWidth = 1;
             ctx.shadowColor = "yellow";
             ctx.shadowBlur = 6;
-            const playerPieces = this.props.game.playerPieces.filter(piece => piece.player === this.props.game.turn.currentPlayer);
+            const playerPieces = this.props.game.playerPieces.filter(piece => piece.player === this.props.game.turn.currentPlayer && piece.selectable === true);
             for (let playerPiece of playerPieces) {
                 const boardCell = playerPiece.position;
                 const matrix2: DOMMatrix2DInit = {

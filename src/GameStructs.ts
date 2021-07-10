@@ -30,6 +30,7 @@ export interface IPlayerPiece {
     position: IBoardCell | IBoardCell & IPlayerCell;
     player: IPlayer;
     code: string;
+    selectable? : boolean;
 }
 
 export enum EPlayerGameState {
