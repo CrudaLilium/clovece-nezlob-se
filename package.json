@@ -10,7 +10,8 @@
     "tsc-p": "tsc -p .",
     "build2": "webpack --config webpack.config.js",
     "dev": "webpack-dev-server --mode development",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { App } from "../App";
 import EPlayerColor, { EPlayerColorReverseMap } from "../EPlayerColors";
-import { Game } from "../Game";
+import { Game } from "../Game/Game";
 import { IPlayer, PlayerLobbyInfo } from "./PlayerLobbyInfo";
 
 export interface ILobbyProps {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RefObject } from 'react';
-import { ETurnState, Game } from './Game';
-import { IPlayerCell } from './GameStructs';
+import { ETurnState, Game } from './Game/Game';
+import { IBoardCell, IPlayer, IPlayerCell } from './Game/GameStructs';
 
 export interface IGameBoardProps {
     game: Game;
@@ -57,7 +57,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
             ctx.shadowBlur = 6;
             const playerPieces = this.props.game.playerPieces.filter(piece => piece.player === this.props.game.turn.currentPlayer && piece.selectable === true);
             for (let playerPiece of playerPieces) {
-                const boardCell = playerPiece.position;
+                const boardCell = (playerPiece.boardPosition as IPlayerCell).cell || playerPiece.boardPosition as IBoardCell;
                 const matrix2: DOMMatrix2DInit = {
                     a: (cellSize - cellMargin * 2) / 100, b: 0, c: 0,
                     d: (cellSize - cellMargin * 2) / 100, e: margin + boardCell.x * cellSize + cellMargin, f: margin + boardCell.y * cellSize + cellMargin
@@ -81,7 +81,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         const playerCellsInfo = this.props.game.playerCells;
 
         for (let cell of [...boardInfo, ...playerCellsInfo]) {
-            ctx.fillStyle = ('player' in cell && (cell as IPlayerCell).player.color) || "#EBEBEB";
+            ctx.fillStyle = ('player' in cell && (cell as { player: IPlayer }).player.color) || "#EBEBEB";
             ctx.fillRect(margin + cell.x * cellSize, margin + cell.y * cellSize, cellSize, cellSize);
         }
         for (let cell of [...boardInfo, ...playerCellsInfo]) {
@@ -111,7 +111,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         ctx.shadowBlur = 3;
         const playerPieces = this.props.game.playerPieces;
         for (let playerPiece of playerPieces) {
-            const boardCell = playerPiece.position;
+            const boardCell = (playerPiece.boardPosition as IPlayerCell).cell || playerPiece.boardPosition as IBoardCell;
             const matrix2: DOMMatrix2DInit = {
                 a: (cellSize - cellMargin * 2) / 100, b: 0, c: 0,
                 d: (cellSize - cellMargin * 2) / 100, e: margin + boardCell.x * cellSize + cellMargin, f: margin + boardCell.y * cellSize + cellMargin
@@ -140,7 +140,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         }
         for (let pl of [...playerPieces]) {
             ctx.fillStyle = `rgb(${pl.identity ?? 0},0,0)`;
-            const cell = pl.position;
+            const cell = (pl.boardPosition as IPlayerCell).cell || pl.boardPosition as IBoardCell;
             ctx.fillRect(margin + cell.x * cellSize, margin + cell.y * cellSize, cellSize, cellSize);
         }
     }
