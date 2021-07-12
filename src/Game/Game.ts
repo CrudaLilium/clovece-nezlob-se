@@ -106,7 +106,7 @@ export class Game {
             }
         }
         const tracks = this.turn.currentPlayer.raceTrack;
-        const piecesInPlay = this.turn.currentPlayer.piecies.filter(piece => tracks.some(cell => ((cell as IPlayerCell).cell || (cell as IBoardCell)).index === ((piece.boardPosition as IPlayerCell).cell || (piece.boardPosition as IBoardCell)).index));
+        const piecesInPlay = this.turn.currentPlayer.piecies.filter(piece => tracks.some(cell => cell.cell.index === piece.boardPosition.cell.index));
         for (let piece of piecesInPlay) {
             const pieceIndexOnTrack = tracks.indexOf(piece.boardPosition);
             const possibleNewPosition = pieceIndexOnTrack + this.turn.roll;
@@ -138,7 +138,7 @@ export class Game {
             playerPiece.boardPosition = this.turn.currentPlayer.raceTrack[0];
         }
         else {
-            const currentCell = this.turn.currentPlayer.raceTrack.find((item) => { return ((item as IPlayerCell).cell || item as IBoardCell).index === ((playerPiece.boardPosition as IPlayerCell).cell || playerPiece.boardPosition as IBoardCell).index });
+            const currentCell = this.turn.currentPlayer.raceTrack.find((item) => item.cell.index === playerPiece.boardPosition.cell.index);
             const indexOfCurrentCell = this.turn.currentPlayer.raceTrack.indexOf(currentCell);
             const newIndex = indexOfCurrentCell + this.turn.roll;
             const newPosition = this.turn.currentPlayer.raceTrack[newIndex];

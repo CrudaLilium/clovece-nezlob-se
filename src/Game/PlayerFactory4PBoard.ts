@@ -34,10 +34,10 @@ export class PlayerFactory4PBoard implements IPlayerCreationFactory {
         });
         //raceTrack
         const boardSplit = board.indexOf(player.cells.find(cell => cell.flag === EPlayerCellFlag.boardStartCell).cell);
-        const playerFinishCells = player.cells.filter(cell => cell.flag === EPlayerCellFlag.finishCell).map(cell => cell.cell);
+        const playerFinishCells = player.cells.filter(cell => cell.flag === EPlayerCellFlag.finishCell);
+        const playerTracksWrapper = [...board.slice(boardSplit, board.length),...board.slice(0, boardSplit)].map(cell => ({ cell }));
         player.raceTrack = [
-            ...board.slice(boardSplit, board.length),
-            ...board.slice(0, boardSplit),
+            ...playerTracksWrapper,
             ...playerFinishCells
         ];
         return player;

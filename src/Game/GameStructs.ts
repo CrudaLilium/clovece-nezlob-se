@@ -8,22 +8,14 @@ export interface IBoardCell {
     y: number;
 }
 
-// export class IBoardCell {
-//     private static _properties: string[] = ["index", "x", "y"];
-//     public static [Symbol.hasInstance](instance: any) {
-//         return instance != null && !this._properties.some((value) => !Reflect.has(instance, value));
-//     }
-// }
-
 export interface IPlayer {
     name: string;
     color: string;
     gameStatus: EPlayerGameState;
     cells: Array<IPlayerCell & IObjectIdentity>;
-    raceTrack: Array<IBoardCell | IPlayerCell>;
+    raceTrack: Array<IPointToBoardCell | IPlayerCell>;
     piecies: Array<IPlayerPiece & IObjectIdentity>;
 }
-
 
 export enum EPlayerCellFlag {
     homeCell,
@@ -31,20 +23,16 @@ export enum EPlayerCellFlag {
     finishCell
 }
 
-export interface IPlayerCell {
-    cell: (IBoardCell & IObjectIdentity);
+export interface IPointToBoardCell {
+    cell: IBoardCell & IObjectIdentity;
+}
+
+export interface IPlayerCell extends IPointToBoardCell {
     flag: EPlayerCellFlag;
 }
 
-// export class IPlayerCell {
-//     private static _properties: string[] = ["cell", "flag"];
-//     public static [Symbol.hasInstance](instance: any) {
-//         return instance != null && !this._properties.some((value) => !Reflect.has(instance, value));
-//     }
-// }
-
 export interface IPlayerPiece {
-    boardPosition: IBoardCell | IPlayerCell;
+    boardPosition: IPointToBoardCell | IPlayerCell;
     code: string;
     selectable: boolean;
 }

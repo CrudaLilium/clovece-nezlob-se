@@ -57,7 +57,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
             ctx.shadowBlur = 6;
             const playerPieces = this.props.game.playerPieces.filter(piece => piece.player === this.props.game.turn.currentPlayer && piece.selectable === true);
             for (let playerPiece of playerPieces) {
-                const boardCell = (playerPiece.boardPosition as IPlayerCell).cell || playerPiece.boardPosition as IBoardCell;
+                const boardCell = playerPiece.boardPosition.cell;
                 const matrix2: DOMMatrix2DInit = {
                     a: (cellSize - cellMargin * 2) / 100, b: 0, c: 0,
                     d: (cellSize - cellMargin * 2) / 100, e: margin + boardCell.x * cellSize + cellMargin, f: margin + boardCell.y * cellSize + cellMargin
@@ -111,7 +111,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         ctx.shadowBlur = 3;
         const playerPieces = this.props.game.playerPieces;
         for (let playerPiece of playerPieces) {
-            const boardCell = (playerPiece.boardPosition as IPlayerCell).cell || playerPiece.boardPosition as IBoardCell;
+            const boardCell = playerPiece.boardPosition.cell;
             const matrix2: DOMMatrix2DInit = {
                 a: (cellSize - cellMargin * 2) / 100, b: 0, c: 0,
                 d: (cellSize - cellMargin * 2) / 100, e: margin + boardCell.x * cellSize + cellMargin, f: margin + boardCell.y * cellSize + cellMargin
@@ -140,7 +140,7 @@ export class GameBoard extends React.Component<IGameBoardProps, { lastRoll?: num
         }
         for (let pl of [...playerPieces]) {
             ctx.fillStyle = `rgb(${pl.identity ?? 0},0,0)`;
-            const cell = (pl.boardPosition as IPlayerCell).cell || pl.boardPosition as IBoardCell;
+            const cell = pl.boardPosition.cell;
             ctx.fillRect(margin + cell.x * cellSize, margin + cell.y * cellSize, cellSize, cellSize);
         }
     }
