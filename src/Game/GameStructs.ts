@@ -6,6 +6,7 @@ export interface IBoardCell {
     index: number;
     x: number;
     y: number;
+    occupied?: IPlayerPiece;
 }
 
 export interface IPlayer {
@@ -14,7 +15,7 @@ export interface IPlayer {
     gameStatus: EPlayerGameState;
     cells: Array<IPlayerCell & IObjectIdentity>;
     raceTrack: Array<IPointToBoardCell | IPlayerCell>;
-    piecies: Array<IPlayerPiece & IObjectIdentity>;
+    pieces: Array<IPlayerPiece & IObjectIdentity>;
 }
 
 export enum EPlayerCellFlag {

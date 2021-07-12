@@ -16,12 +16,12 @@ export class PlayerFactory4PBoard implements IPlayerCreationFactory {
             color: entryData.color,
             gameStatus: EPlayerGameState.startingRolls,
             cells: [],
-            piecies: [],
+            pieces: [],
             raceTrack: []
         };
         //cells
         this._createPlayerCells(player, position, board);
-        //piecies
+        //pieces
         const startingPositions = player.cells.filter(cell => cell.flag === EPlayerCellFlag.homeCell);
         startingPositions.forEach((position, index) => {
             const piece: IPlayerPiece & IObjectIdentity = {
@@ -30,7 +30,8 @@ export class PlayerFactory4PBoard implements IPlayerCreationFactory {
                 boardPosition: position,
                 selectable: false
             };
-            player.piecies.push(piece);
+            position.cell.occupied = piece;
+            player.pieces.push(piece);
         });
         //raceTrack
         const boardSplit = board.indexOf(player.cells.find(cell => cell.flag === EPlayerCellFlag.boardStartCell).cell);

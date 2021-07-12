@@ -34,8 +34,8 @@ export class Game {
 
     public get playerPieces(): Array<IPlayerPiece & IObjectIdentity & { player: IPlayer }> {
         return this.players.reduce<Array<IPlayerPiece & IObjectIdentity & { player: IPlayer }>>((accumulator, player) => {
-            const piecies = player.piecies.map((piece) => { return { ...piece, player }; });
-            return accumulator.concat(...piecies);
+            const pieces = player.pieces.map((piece) => { return { ...piece, player }; });
+            return accumulator.concat(...pieces);
         }, []);
     }
 
@@ -64,7 +64,7 @@ export class Game {
                 this.turn.special = true;
                 this.turn.state = ETurnState.waitingForPieceSelection;
                 this.turn.currentPlayer.gameStatus = EPlayerGameState.inPlay;
-                this.turn.currentPlayer.piecies.forEach(piece => piece.selectable = true);
+                this.turn.currentPlayer.pieces.forEach(piece => piece.selectable = true);
             }
             else {
                 this.turn.special = false;
@@ -79,7 +79,7 @@ export class Game {
 
         if (this.turn.currentPlayer.gameStatus === EPlayerGameState.inPlay) {
             this.turn.roll = rollDice6();
-            const possibleMovablePieces = this.checkMoveablePiecies();
+            const possibleMovablePieces = this.checkMoveablePieces();
             if (possibleMovablePieces === 0) {
                 this.passTurnToNextPlayer();
                 return;
@@ -95,18 +95,18 @@ export class Game {
         }
     }
 
-    private checkMoveablePiecies() {
-        let selectablePiecies = 0;
+    private checkMoveablePieces() {
+        let selectablePieces = 0;
         const playerStartingCells = this.turn.currentPlayer.cells.filter(cell => cell.flag === EPlayerCellFlag.homeCell).map(cell => cell.cell);
         if (this.turn.roll === 6) {
-            const piecesAtStart = this.turn.currentPlayer.piecies.filter(piece => (piece.boardPosition as IPlayerCell).flag === EPlayerCellFlag.homeCell);
+            const piecesAtStart = this.turn.currentPlayer.pieces.filter(piece => (piece.boardPosition as IPlayerCell).flag === EPlayerCellFlag.homeCell);
             for (let piece of piecesAtStart) {
                 piece.selectable = true;
-                selectablePiecies++;
+                selectablePieces++;
             }
         }
         const tracks = this.turn.currentPlayer.raceTrack;
-        const piecesInPlay = this.turn.currentPlayer.piecies.filter(piece => tracks.some(cell => cell.cell.index === piece.boardPosition.cell.index));
+        const piecesInPlay = this.turn.currentPlayer.pieces.filter(piece => tracks.some(cell => cell.cell.index === piece.boardPosition.cell.index));
         for (let piece of piecesInPlay) {
             const pieceIndexOnTrack = tracks.indexOf(piece.boardPosition);
             const possibleNewPosition = pieceIndexOnTrack + this.turn.roll;
@@ -119,23 +119,32 @@ export class Game {
             if (!isOccupied) //can move
             {
                 piece.selectable = true;
-                selectablePiecies++;
+                selectablePieces++;
             }
         }
-        return selectablePiecies;
+        return selectablePieces;
     }
 
     public pieceSelect(objectId: number) {
         console.log("pieceSelect", objectId);
         if (!(this.turn.state === ETurnState.waitingForPieceSelection || this.turn.state === ETurnState.waitingForPieceSelectionAndPass))
             return;
-        const playerPiece = this.turn.currentPlayer.piecies.find(item => item.identity === objectId);
+        const playerPiece = this.turn.currentPlayer.pieces.find(item => item.identity === objectId);
         if (!playerPiece) {
             console.warn("attempt to select empty cell or piece not belonging to current player, canceling");
             return;
         }
+        if(!playerPiece.selectable)
+        {
+            console.warn("piece is not selectable");
+            return;
+        }
         if (this.turn.special && (playerPiece.boardPosition as IPlayerCell).flag === EPlayerCellFlag.homeCell) {
+            playerPiece.boardPosition.cell.occupied = null;
+            const newPosition = this.turn.currentPlayer.raceTrack[0];
+            this._sendHome(newPosition.cell.occupied);
             playerPiece.boardPosition = this.turn.currentPlayer.raceTrack[0];
+            playerPiece.boardPosition.cell.occupied = playerPiece;
         }
         else {
             const currentCell = this.turn.currentPlayer.raceTrack.find((item) => item.cell.index === playerPiece.boardPosition.cell.index);
@@ -143,15 +152,37 @@ export class Game {
             const newIndex = indexOfCurrentCell + this.turn.roll;
             const newPosition = this.turn.currentPlayer.raceTrack[newIndex];
             if (newPosition) {
+                playerPiece.boardPosition.cell.occupied = null;
+                this._sendHome(newPosition.cell.occupied);
                 playerPiece.boardPosition = newPosition;
+                newPosition.cell.occupied = playerPiece;
             }
         }
+
+        //check game is over
+        if (!(this.turn.currentPlayer.cells.filter(cell => cell.flag === EPlayerCellFlag.finishCell).some(cell => !cell.cell.occupied))) {
+            console.log("game over!");
+            alert("game over");
+        }
+
         if (this.turn.state === ETurnState.waitingForPieceSelectionAndPass) {
             this.passTurnToNextPlayer();
         }
         this.turn.state = ETurnState.waitingForRoll;
         //reset selectablepieces
-        this.turn.currentPlayer.piecies.forEach(piece => piece.selectable = false);
+        this.turn.currentPlayer.pieces.forEach(piece => piece.selectable = false);
+    }
+
+    private _sendHome(piece?: IPlayerPiece & IObjectIdentity) {
+        if (!piece) {
+            return;
+        }
+        const combo = this.playerPieces.find(combo => combo.identity === piece.identity);
+        const freeHome = combo.player.cells.find(cell => cell.flag === EPlayerCellFlag.homeCell && !cell.cell.occupied);
+        piece.boardPosition = freeHome;
+        freeHome.cell.occupied = piece;
+
+        piece.boardPosition.cell.occupied = null;
     }
 
     private passTurnToNextPlayer() {
