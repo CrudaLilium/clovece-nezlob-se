@@ -97,13 +97,13 @@ export class Game {
 
     private checkMoveablePieces() {
         let selectablePieces = 0;
-        const playerStartingCells = this.turn.currentPlayer.cells.filter(cell => cell.flag === EPlayerCellFlag.homeCell).map(cell => cell.cell);
         if (this.turn.roll === 6) {
-            const piecesAtStart = this.turn.currentPlayer.pieces.filter(piece => (piece.boardPosition as IPlayerCell).flag === EPlayerCellFlag.homeCell);
-            for (let piece of piecesAtStart) {
-                piece.selectable = true;
-                selectablePieces++;
-            }
+            this.turn.currentPlayer.cells
+                .filter(cell => cell.flag === EPlayerCellFlag.homeCell && !!cell.cell.occupied)
+                .forEach((cell) => {
+                    cell.cell.occupied.selectable = true;
+                    selectablePieces++;
+                });
         }
         const tracks = this.turn.currentPlayer.raceTrack;
         const piecesInPlay = this.turn.currentPlayer.pieces.filter(piece => tracks.some(cell => cell.cell.index === piece.boardPosition.cell.index));
@@ -115,8 +115,8 @@ export class Game {
             {
                 continue;
             }
-            const isOccupied = piecesInPlay.some(piece => piece.boardPosition === position);
-            if (!isOccupied) //can move
+            const isOccupiedByPlayerPiece = piecesInPlay.some(piece => piece === position.cell.occupied);
+            if (!isOccupiedByPlayerPiece) //can move
             {
                 piece.selectable = true;
                 selectablePieces++;
@@ -134,8 +134,7 @@ export class Game {
             console.warn("attempt to select empty cell or piece not belonging to current player, canceling");
             return;
         }
-        if(!playerPiece.selectable)
-        {
+        if (!playerPiece.selectable) {
             console.warn("piece is not selectable");
             return;
         }
