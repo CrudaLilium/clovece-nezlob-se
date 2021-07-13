@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { App } from "../App";
 import EPlayerColor, { EPlayerColorReverseMap } from "../EPlayerColors";
 import { Game } from "../Game/Game";
+import { IPlayerInfo } from "../IPlayerInfo";
 import { IPlayer, PlayerLobbyInfo } from "./PlayerLobbyInfo";
 
 export interface ILobbyProps {
@@ -10,7 +11,7 @@ export interface ILobbyProps {
 }
 
 export function Lobby(props: ILobbyProps) {
-    const [players, setPlayers] = useState([
+    const [players, setPlayers] = useState<IPlayerInfo[]>([
         { playerName: "Player 1", color: EPlayerColor.Red },
         // { playerName: "Player 2", color: EPlayerColor.Green },
     ]);

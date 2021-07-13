@@ -3,6 +3,7 @@ import EPlayerColor from "../EPlayerColors";
 import { EPlayerCellFlag, EPlayerGameState, IBoardCell, IObjectIdentity, IPlayer, IPlayerCell, IPlayerPiece } from "./GameStructs";
 import { IBoardCreationFactory } from "./IBoardCreationFactory";
 import { IPlayerCreationFactory } from "./IPlayerCreationFactory";
+import { IPlayerFactory } from "./IPlayerFactory";
 
 export enum ETurnState {
     waitingForRoll,
@@ -39,9 +40,9 @@ export class Game {
         }, []);
     }
 
-    constructor(factories: { boardFactory: IBoardCreationFactory, playerFactory: IPlayerCreationFactory }, players: Array<{ playerName: string, color: EPlayerColor }>) {
+    constructor(factories: { boardFactory: IBoardCreationFactory, playerFactory: IPlayerFactory }) {
         this.board = factories.boardFactory.create();
-        this.players = players.map((playerInfo, index) => factories.playerFactory.createPlayerablePlayer(playerInfo, index, this.board));
+        this.players = factories.playerFactory.create(this.board);
 
         this.turn = {
             state: ETurnState.waitingForRoll,
